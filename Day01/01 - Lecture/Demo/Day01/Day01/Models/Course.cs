@@ -20,4 +20,5 @@ public partial class Course
     public virtual ICollection<StudCourse> StudCourses { get; set; } = new List<StudCourse>();
 
     public virtual Topic Top { get; set; }
+
 }
