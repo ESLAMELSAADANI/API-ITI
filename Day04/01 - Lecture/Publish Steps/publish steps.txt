@@ -1,0 +1,17 @@
+-conbfig iis to work with .net app 
+=>control panel ,add windows featue on or of , iis => wwwservice 
+=>apllication development featue =>enable .net ,asp
+
+-setup .net core hosting bundle(.net run time +IIS support)
+=>https://learn.microsoft.com/en-us/aspnet/core/host-and-deploy/iis/hosting-bundle?view=aspnetcore-8.0
+
+-sqlserver  => create user on your database
+
+-vs => modefiy connection string with database user and password
+-vs(run as admin)=>publish in any folder
+
+-IIS manger =>create website 
+-copy files from publish folder to iis website folder
+--run url
+
+
