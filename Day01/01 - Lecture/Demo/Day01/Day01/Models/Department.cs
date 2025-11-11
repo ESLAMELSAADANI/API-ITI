@@ -2,6 +2,7 @@
 #nullable disable
 using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace Day01.Models;
 
@@ -18,9 +19,9 @@ public partial class Department
     public int? DeptManager { get; set; }
 
     public DateOnly? ManagerHiredate { get; set; }
-
+    [JsonIgnore]
     public virtual Instructor DeptManagerNavigation { get; set; }
-
+    [JsonIgnore]
     public virtual ICollection<Instructor> Instructors { get; set; } = new List<Instructor>();
 
     public virtual ICollection<Student> Students { get; set; } = new List<Student>();
