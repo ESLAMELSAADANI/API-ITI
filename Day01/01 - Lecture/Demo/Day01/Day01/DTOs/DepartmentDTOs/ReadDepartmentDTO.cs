@@ -13,7 +13,7 @@ namespace Day01.DTOs.DepartmentDTOs
 
 		public int? StudentNo { get; set; }
 
-		public IEnumerable<String> StudentNames { get; set; } = new List<String>();
+		public IEnumerable<string> StudentNames { get; set; } = new List<String>();
 	}
 }
 

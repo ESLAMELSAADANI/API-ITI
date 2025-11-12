@@ -7,46 +7,56 @@ using Newtonsoft.Json;
 
 namespace Day01
 {
-	public class Program
-	{
-		public static void Main(string[] args)
-		{
-			var builder = WebApplication.CreateBuilder(args);
+    public class Program
+    {
+        public static void Main(string[] args)
+        {
+            var builder = WebApplication.CreateBuilder(args);
 
-			// Add services to the container. 
+            // Add services to the container. 
 
-			builder.Services.AddControllers().AddNewtonsoftJson(options =>
-			{
-				// Configure Newtonsoft.Json options here
-				options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
-				options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
-			}); ;
-			// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-			builder.Services.AddOpenApi();
-			builder.Services.AddDbContext<ITIDbContext>(op =>
-			{
-				op.UseLazyLoadingProxies().UseSqlServer(builder.Configuration.GetConnectionString("ITI_Conn"));
-			});
+            builder.Services.AddControllers().AddNewtonsoftJson(options =>
+            {
+                // Configure Newtonsoft.Json options here
+                options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+                options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
+            }); ;
+            // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+            builder.Services.AddOpenApi();
+            builder.Services.AddDbContext<ITIDbContext>(op =>
+            {
+                op.UseLazyLoadingProxies().UseSqlServer(builder.Configuration.GetConnectionString("ITI_Conn"));
+            });
 
-			builder.Services.AddAutoMapper(cfg => { }, typeof(MappingProfile));
+            builder.Services.AddAutoMapper(cfg => { }, typeof(MappingProfile));
 
-			var app = builder.Build();
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowFrontend",
+                    policy => policy
+                    .WithOrigins("https://localhost:7289")
+                    .AllowAnyMethod()
+                    .AllowAnyHeader());
+            });
 
-			// Configure the HTTP request pipeline.
-			if (app.Environment.IsDevelopment())
-			{
-				app.MapOpenApi();
-				app.UseSwaggerUI(op => op.SwaggerEndpoint("/openapi/v1.json", "v1"));
-			}
+            var app = builder.Build();
 
-			app.UseHttpsRedirection();
+            // Configure the HTTP request pipeline.
+            if (app.Environment.IsDevelopment())
+            {
+                app.MapOpenApi();
+                app.UseSwaggerUI(op => op.SwaggerEndpoint("/openapi/v1.json", "v1"));
+            }
 
-			app.UseAuthorization();
+            app.UseHttpsRedirection();
 
+            app.UseAuthorization();
 
-			app.MapControllers();
+            app.UseCors("AllowFrontend");
 
-			app.Run();
-		}
-	}
+            app.MapControllers();
+
+            app.Run();
+        }
+    }
 }

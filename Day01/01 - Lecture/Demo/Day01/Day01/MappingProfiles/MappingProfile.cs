@@ -32,7 +32,7 @@ namespace Day01.MappingProfiles
 				dest.Name = src.DeptName ?? "";
 				dest.Location = src.DeptLocation ?? "";
 				dest.StudentNo = src.Students?.Count();
-				dest.StudentNames = src.Students?.Select((s, i) => $"{i + 1} - {s.StFname} {s.StLname}".Trim()) ?? new List<string>();
+				dest.StudentNames = src.Students?.Select((s, i) => $"{i + 1} - {s.StFname} {s.StLname}".Trim()).ToList() ?? new List<string>();
 			}).ReverseMap();
 
 		}
