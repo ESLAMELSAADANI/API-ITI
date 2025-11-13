@@ -6,6 +6,8 @@
         public string Name { get; set; }
         public int? Age { get; set; }
         public string Address { get; set; }
+        public int? SuperVisorId { get; set; }
+        public string SupervisorName { get; set; }
         public int? DeptId { get; set; }
         public string DeptName { get; set; }
     }

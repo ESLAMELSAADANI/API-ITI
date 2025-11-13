@@ -25,7 +25,7 @@ public partial class Student
     public virtual Department Dept { get; set; }
     [JsonIgnore]
     public virtual ICollection<Student> InverseStSuperNavigation { get; set; } = new List<Student>();
-    [JsonIgnore]
+    //[JsonIgnore]
     public virtual Student StSuperNavigation { get; set; }
     [JsonIgnore]
     public virtual ICollection<StudCourse> StudCourses { get; set; } = new List<StudCourse>();

@@ -2,6 +2,7 @@
 #nullable disable
 using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace Day01.Models;
 
@@ -9,14 +10,14 @@ public partial class Course
 {
     public int CrsId { get; set; }
 
-    public string CrsName { get; set; }
+    public string? CrsName { get; set; }
 
     public int? CrsDuration { get; set; }
 
     public int? TopId { get; set; }
-
+    [JsonIgnore]
     public virtual ICollection<InsCourse> InsCourses { get; set; } = new List<InsCourse>();
-
+    [JsonIgnore]
     public virtual ICollection<StudCourse> StudCourses { get; set; } = new List<StudCourse>();
 
     public virtual Topic Top { get; set; }

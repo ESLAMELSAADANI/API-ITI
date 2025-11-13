@@ -20,32 +20,81 @@ namespace Day01.Controllers
 			mapper = _mapper;
 		}
 
-		[HttpGet]
-		public IActionResult GetAll()
-		{
-			var stds = dbContext.Students.ToList();
-			if (stds == null || stds.Count == 0)
-				return NotFound();
-			//List<ReadStudentDTO> stdsDTO = new List<ReadStudentDTO>();
-			//foreach (var std in stds)
-			//{
-			//    stdsDTO.Add(new ReadStudentDTO()
-			//    {
-			//        Id = std.StId,
-			//        Name = std.StFname + " " + std.StLname,
-			//        Address = std.StAddress,
-			//        Age = std.StAge ?? 0,
-			//        DeptId = std.DeptId ?? 0,
-			//        DeptName = std.Dept?.DeptName ?? "No Department"
-			//    });
-			//}
+        [HttpGet]
+        public IActionResult GetAll(string? search, int pageNumber = 1, int pageSize = 5)
+        {
+            var query = dbContext.Students.AsQueryable();
 
-			//Auto Mapper
-			List<ReadStudentDTO> stdsDTO = mapper.Map<List<ReadStudentDTO>>(stds);
-			return Ok(stdsDTO);
-		}
+            // 🔍 Search
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                query = query.Where(s =>
+                    s.StFname.Contains(search) ||
+                    s.StLname.Contains(search) ||
+                    s.StAddress.Contains(search));
+            }
 
-		[HttpGet("{id:int}")]
+            // 🧮 Count total
+            var totalRecords = query.Count();
+
+            // ⚙️ If pageSize = 0 (or negative), return all
+            if (pageSize <= 0)
+            {
+                var allStudents = query.Include(s => s.Dept).ToList();
+                var allDTOs = mapper.Map<List<ReadStudentDTO>>(allStudents);
+                return Ok(new
+                {
+                    totalRecords,
+                    data = allDTOs
+                });
+            }
+
+            // 🧭 Pagination
+            var students = query
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .Include(s => s.Dept)
+                .ToList();
+
+            var stdDTOs = mapper.Map<List<ReadStudentDTO>>(students);
+            var totalPages = (int)Math.Ceiling((double)totalRecords / pageSize);
+
+            return Ok(new
+            {
+                currentPage = pageNumber,
+                pageSize,
+                totalRecords,
+                totalPages,
+                data = stdDTOs
+            });
+        }
+
+        //[HttpGet]
+        //public IActionResult GetAll()
+        //{
+        //	var stds = dbContext.Students.ToList();
+        //	if (stds == null || stds.Count == 0)
+        //		return NotFound();
+        //	//List<ReadStudentDTO> stdsDTO = new List<ReadStudentDTO>();
+        //	//foreach (var std in stds)
+        //	//{
+        //	//    stdsDTO.Add(new ReadStudentDTO()
+        //	//    {
+        //	//        Id = std.StId,
+        //	//        Name = std.StFname + " " + std.StLname,
+        //	//        Address = std.StAddress,
+        //	//        Age = std.StAge ?? 0,
+        //	//        DeptId = std.DeptId ?? 0,
+        //	//        DeptName = std.Dept?.DeptName ?? "No Department"
+        //	//    });
+        //	//}
+
+        //	//Auto Mapper
+        //	List<ReadStudentDTO> stdsDTO = mapper.Map<List<ReadStudentDTO>>(stds);
+        //	return Ok(stdsDTO);
+        //}
+
+        [HttpGet("{id:int}")]
 		public IActionResult GetById(int? id)
 		{
 			if (id == null)
@@ -132,7 +181,7 @@ namespace Day01.Controllers
 				//Auto Mapper
 				ReadStudentDTO rStdDTO = mapper.Map<ReadStudentDTO>(std);
 
-				return CreatedAtAction("GetById", new { id = std.StId }, rStdDTO);
+				return RedirectToAction("GetById", new {id = std.StId});
 			}
 			return BadRequest();
 		}

@@ -11,5 +11,6 @@ namespace Day01.DTOs.StudentDTOs
         public int? Age { get; set; }
         public string Address { get; set; }
         public int? DeptId { get; set; }
+        public int? SupervisorId { get; set; }
     }
 }
