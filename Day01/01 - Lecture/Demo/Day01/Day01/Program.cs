@@ -1,6 +1,7 @@
 using Day01.DTOs.StudentDTOs;
 using Day01.MappingProfiles;
 using Day01.Models;
+using Day01.Repository;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
@@ -38,6 +39,10 @@ namespace Day01
                     .AllowAnyMethod()
                     .AllowAnyHeader());
             });
+
+            builder.Services.AddScoped<EntityRepo<Student>, StudentRepo>();
+            builder.Services.AddScoped<EntityRepo<Department>, DepartmentRepo>();
+            builder.Services.AddScoped<IStudentRepoExtra, StudentRepo>();
 
             var app = builder.Build();
 
