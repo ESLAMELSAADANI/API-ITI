@@ -40,8 +40,14 @@ namespace Day01
                     .AllowAnyHeader());
             });
 
-            builder.Services.AddScoped<EntityRepo<Student>, StudentRepo>();
-            builder.Services.AddScoped<EntityRepo<Department>, DepartmentRepo>();
+            //For Test
+            //builder.Services.AddScoped<IEntityRepo<Student>, StudentRepoTest>();
+            
+            builder.Services.AddScoped<IEntityRepo<Student>, StudentRepo>();
+            builder.Services.AddScoped<IEntityRepo<Department>, DepartmentRepo>();
+
+            //builder.Services.AddScoped<EntityRepo<Student>, StudentRepo>();
+            //builder.Services.AddScoped<EntityRepo<Department>, DepartmentRepo>();
             builder.Services.AddScoped<IStudentRepoExtra, StudentRepo>();
 
             var app = builder.Build();

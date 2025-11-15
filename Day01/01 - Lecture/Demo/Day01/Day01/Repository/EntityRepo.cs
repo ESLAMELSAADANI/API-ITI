@@ -13,9 +13,9 @@ namespace Day01.Repository
             dbContext = _dbContext;
         }
 
-        public async Task AddAsync(T entity)
+        public void Add(T entity)
         {
-            await dbContext.Set<T>().AddAsync(entity);
+            dbContext.Set<T>().Add(entity);
         }
 
         public void Delete(T entity)
@@ -28,19 +28,19 @@ namespace Day01.Repository
             dbContext.Set<T>().Update(entity);
         }
 
-        public async Task<IEnumerable<T>> GetAllAsync()
+        public IEnumerable<T> GetAll()
         {
-            return await dbContext.Set<T>().ToListAsync();
+            return dbContext.Set<T>().ToList();
         }
 
-        public virtual async Task<T> GetByIdAsync<S>(S id)
+        public virtual T GetById<S>(S id)
         {
-            return await dbContext.Set<T>().FindAsync(id);
+            return dbContext.Set<T>().Find(id);
         }
 
-        public async Task<int> SaveChangesAsync()
+        public int SaveChanges()
         {
-            return await dbContext.SaveChangesAsync();
+            return dbContext.SaveChanges();
         }
     }
 }

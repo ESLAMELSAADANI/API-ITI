@@ -9,6 +9,6 @@
         public int? SuperVisorId { get; set; }
         public string SupervisorName { get; set; }
         public int? DeptId { get; set; }
-        public string DeptName { get; set; }
+        public string? DeptName { get; set; }
     }
 }

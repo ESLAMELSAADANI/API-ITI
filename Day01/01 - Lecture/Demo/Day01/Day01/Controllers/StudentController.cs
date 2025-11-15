@@ -14,11 +14,13 @@ namespace Day01.Controllers
     public class StudentController : ControllerBase
     {
         IMapper mapper;
-        EntityRepo<Student> studentRepo;
-        EntityRepo<Department> departmentRepo;
+        IEntityRepo<Student> studentRepo;
+        IEntityRepo<Department> departmentRepo;
+        //EntityRepo<Student> studentRepo;
+        //EntityRepo<Department> departmentRepo;
         IStudentRepoExtra studentRepoExtra;
 
-        public StudentController(IMapper _mapper, EntityRepo<Student> _studentRepo, IStudentRepoExtra _studentRepoExtra, EntityRepo<Department> _departmentRepo)
+        public StudentController(IMapper _mapper, /*EntityRepo<Student> _studentRepo*/ /*,*/  IStudentRepoExtra _studentRepoExtra, IEntityRepo<Department> _departmentRepo, IEntityRepo<Student> _studentRepo)
         {
             mapper = _mapper;
             studentRepo = _studentRepo;
@@ -27,9 +29,9 @@ namespace Day01.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll(string? search, int pageNumber = 1, int pageSize = 5)
+        public IActionResult GetAll(string? search, int pageNumber = 1, int pageSize = 5)
         {
-            var query = await studentRepo.GetAllAsync();
+            var query = studentRepo.GetAll();
 
             // 🔍 Search
             if (!string.IsNullOrWhiteSpace(search))
@@ -99,11 +101,11 @@ namespace Day01.Controllers
         //}
 
         [HttpGet("{id:int}")]
-        public async Task<IActionResult> GetById(int? id)
+        public IActionResult GetById(int? id)
         {
             if (id == null)
                 return BadRequest();
-            var std = await studentRepo.GetByIdAsync<int>(id.Value);
+            var std = studentRepo.GetById<int>(id.Value);
             if (std == null)
                 return NotFound();
             //DTOs
@@ -124,34 +126,20 @@ namespace Day01.Controllers
 
         [HttpGet("/api/student/address/{address}")]
         //[HttpGet("{name:alpha}")]
-        public async Task<IActionResult> GetByAddress(string address)
+        public IActionResult GetByAddress(string address)
         {
             if (address == null)
                 return BadRequest();
-            var stds = await studentRepoExtra.GetByAddressAsync(address);
+            var stds = studentRepoExtra.GetByAddress(address);
             if (stds == null)
                 return NotFound();
-            //var stdsDTO = new List<ReadStudentDTO>();
-            //foreach (var std in stds)
-            //{
-            //    stdsDTO.Add(new ReadStudentDTO()
-            //    {
-            //        Id = std.StId,
-            //        Age = std.StAge ?? 0,
-            //        Name = std.StFname ?? " " + " " + std.StLname ?? " ",
-            //        Address = std.StAddress ?? "No Address",
-            //        DeptId = std.DeptId ?? 0,
-            //        DeptName = std.Dept?.DeptName ?? "No Department"
-            //    });
-            //}
-
             //Auto Mapper
             List<ReadStudentDTO> stdsDTO = mapper.Map<List<ReadStudentDTO>>(stds);
             return Ok(stdsDTO);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Add(AddStudentDTO stdDTO)
+        public  IActionResult Add(AddStudentDTO stdDTO)
         {
             if (stdDTO == null)
                 return BadRequest();
@@ -170,8 +158,8 @@ namespace Day01.Controllers
                 //Auto Mapper
                 Student std = mapper.Map<Student>(stdDTO);
 
-                await studentRepo.AddAsync(std);
-                await studentRepo.SaveChangesAsync();
+                studentRepo.Add(std);
+                studentRepo.SaveChanges();
                 //var rStdDTO = new ReadStudentDTO()
                 //{
                 //    Id = stdDTO.Id,
@@ -191,63 +179,40 @@ namespace Day01.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Edit(int id, AddStudentDTO std)
-        {
+        public IActionResult Edit(int id, AddStudentDTO std)
+        { 
             if (std == null)
                 return BadRequest();
             if (id != std.Id)
                 return BadRequest();
             //var student = dbContext.Students.AsNoTracking().SingleOrDefault(s => s.StId == id);
-            var student = await studentRepo.GetByIdAsync<int>(id);
+            var student = studentRepo.GetById<int>(id);
             if (student == null)
                 return NotFound();
-            //var model = new Student()
-            //{
-            //	StId = std.Id,
-            //	StFname = std.Name,
-            //	StAge = std.Age,
-            //	StAddress = std.Address,
-            //	DeptId = std.DeptId
-            //};
             Student model = mapper.Map<Student>(std);
-            //model.Dept = dbContext.Departments.SingleOrDefault(d => d.DeptId == std.DeptId);
-            model.Dept = await departmentRepo.GetByIdAsync<int>(std.DeptId.Value);
+            model.Dept = departmentRepo.GetById<int>(std.DeptId.Value);
             if (ModelState.IsValid)
             {
-                //dbContext.Students.Update(model);
-                //dbContext.SaveChanges();
                 studentRepo.Edit(model);
-                await studentRepo.SaveChangesAsync();
+                studentRepo.SaveChanges();
                 return NoContent();
             }
             return BadRequest();
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int? id)
+        public IActionResult Delete(int? id)
         {
             if (id == null)
                 return BadRequest();
-            //var std = dbContext.Students.SingleOrDefault(s => s.StId == id);
-            var std = await studentRepo.GetByIdAsync<int>(id.Value);
+            var std = studentRepo.GetById<int>(id.Value);
             if (std == null)
                 return NotFound();
             if (ModelState.IsValid)
             {
-                //ReadStudentDTO stdDTO = new ReadStudentDTO()
-                //{
-                //	Id = std.StId,
-                //	Age = std.StAge ?? 0,
-                //	Address = std.StAddress ?? " ",
-                //	Name = std.StFname + " " + std.StLname,
-                //	DeptId = std.DeptId ?? 0,
-                //	DeptName = std.Dept?.DeptName ?? " No Dept! "
-                //};
                 var stdDTO = mapper.Map<ReadStudentDTO>(std);
-                //dbContext.Students.Remove(std);
-                //dbContext.SaveChanges();
                 studentRepo.Delete(std);
-                await studentRepo.SaveChangesAsync();
+                studentRepo.SaveChanges();
                 return Ok(stdDTO);
             }
             return BadRequest();

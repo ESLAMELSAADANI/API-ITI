@@ -2,11 +2,11 @@
 {
     public interface IEntityRepo<T> where T : class
     {
-        Task<IEnumerable<T>> GetAllAsync();
-        Task<T> GetByIdAsync<S>(S id);
-        Task AddAsync(T entity);
+        IEnumerable<T> GetAll();
+        T GetById<S>(S id);
+        void Add(T entity);
         void Edit(T entity);
         void Delete(T entity);
-        Task<int> SaveChangesAsync();
+        int SaveChanges();
     }
 }

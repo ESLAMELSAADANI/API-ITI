@@ -6,7 +6,7 @@ namespace Day01.Repository
 {
     public interface IStudentRepoExtra
     {
-        public Task<IEnumerable<Student>> GetByAddressAsync(string address);
+        public IEnumerable<Student> GetByAddress(string address);
     }
     public class StudentRepo : EntityRepo<Student>, IStudentRepoExtra
     {
@@ -15,14 +15,14 @@ namespace Day01.Repository
         {
         }
 
-        public override Task<Student> GetByIdAsync<S>(S id)
+        public override Student GetById<S>(S id)
         {
-            return dbContext.Students.AsNoTracking().SingleOrDefaultAsync(s => s.StId == id as int?);
+            return dbContext.Students.AsNoTracking().SingleOrDefault(s => s.StId == id as int?);
         }
 
-        public async Task<IEnumerable<Student>> GetByAddressAsync(string address)
+        public IEnumerable<Student> GetByAddress(string address)
         {
-            return await dbContext.Students.Where(s => s.StAddress == address).ToListAsync();
+            return dbContext.Students.Where(s => s.StAddress == address).ToList();
         }
     }
 }

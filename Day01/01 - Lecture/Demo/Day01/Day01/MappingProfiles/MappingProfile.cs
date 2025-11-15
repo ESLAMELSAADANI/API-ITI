@@ -16,8 +16,9 @@ namespace Day01.MappingProfiles
                 dest.Name = $"{src.StFname} {src.StLname}".Trim();
                 dest.Address = src.StAddress ?? " ";
                 dest.Age = src.StAge ?? 0;
+                dest.DeptId = src.DeptId??0;
                 dest.DeptName = src.Dept?.DeptName ?? "No Dept!";
-                dest.SuperVisorId = src.StSuper ?? 0;
+                dest.SuperVisorId = src.StSuper??0;
                 dest.SupervisorName = $"{src.StSuperNavigation?.StFname ?? " "} {src.StSuperNavigation?.StLname ?? " "}".Trim();
             }).ReverseMap();
 

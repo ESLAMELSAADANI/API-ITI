@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
 using Day01.DTOs.DepartmentDTOs;
 using Day01.Models;
+using Day01.Repository;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 
 namespace Day01.Controllers
 {
@@ -10,31 +12,19 @@ namespace Day01.Controllers
     [ApiController]
     public class DepartmentController : ControllerBase
     {
-        ITIDbContext dbContext;
+        IEntityRepo<Department> departmentRepo;
         IMapper mapper;
 
-        public DepartmentController(ITIDbContext dbContext, IMapper _mapper)
+        public DepartmentController(IEntityRepo<Department> _departmentRepo, IMapper _mapper)
         {
-            this.dbContext = dbContext;
+            departmentRepo = _departmentRepo;
             mapper = _mapper;
         }
 
         [HttpGet]
         public IActionResult GetAll()
         {
-            var depts = dbContext.Departments.ToList();
-            //var deptsDTO = new List<ReadDepartmentDTO>();
-            //foreach (var dept in depts)
-            //{
-            //	deptsDTO.Add(new ReadDepartmentDTO()
-            //	{
-            //		Id = dept.DeptId,
-            //		Location = dept.DeptLocation,
-            //		Name = dept.DeptName,
-            //		StudentNo = dept.Students?.Count(),
-            //		StudentNames = dept.Students?.Select((s, i) => $"{i+1} - {s.StFname} {s.StLname}".Trim()) ?? new List<string>()
-            //	});
-            //} 
+            var depts = departmentRepo.GetAll();
             var deptsDTO = mapper.Map<List<ReadDepartmentDTO>>(depts);
             return Ok(deptsDTO);
         }
@@ -44,17 +34,9 @@ namespace Day01.Controllers
         {
             if (id == null)
                 return BadRequest();
-            var dept = dbContext.Departments.SingleOrDefault(d => d.DeptId == id);
+            var dept = departmentRepo.GetById<int>(id.Value);
             if (dept == null)
                 return NotFound();
-            //ReadDepartmentDTO dDTO = new ReadDepartmentDTO()
-            //{
-            //	Id = dept.DeptId,
-            //	Name = dept.DeptName,
-            //	Location = dept.DeptLocation,
-            //	StudentNo = dept.Students?.Count(),
-            //	StudentNames = dept.Students?.Select((s, i) => $"{i + 1} - {s.StFname} {s.StLname}".Trim()) ?? new List<String>()
-            //};
             ReadDepartmentDTO dDTO = mapper.Map<ReadDepartmentDTO>(dept);
             return Ok(dDTO);
         }
@@ -69,8 +51,8 @@ namespace Day01.Controllers
             if (ModelState.IsValid)
             {
                 Department dept = mapper.Map<Department>(departmentDTO);
-                dbContext.Departments.Add(dept);
-                dbContext.SaveChanges();
+                departmentRepo.Add(dept);
+                departmentRepo.SaveChanges();
                 return RedirectToAction("GetById", new { id = dept.DeptId });
             }
             return BadRequest();
@@ -81,29 +63,29 @@ namespace Day01.Controllers
         {
             if (id == null || departmentDTO == null || id != departmentDTO.Id)
                 return BadRequest();
-            Department department = dbContext.Departments.SingleOrDefault(d => d.DeptId == id);
+            Department department = departmentRepo.GetById<int>(id.Value);
             if (department == null)
                 return NotFound();
             if (ModelState.IsValid)
             {
                 Department dept = mapper.Map<Department>(departmentDTO);
-                dbContext.Departments.Update(dept);
-                dbContext.SaveChanges();
+                departmentRepo.Edit(dept);
+                departmentRepo.SaveChanges();
                 return NoContent();
             }
             return BadRequest();
         }
 
         [HttpDelete("{id}")]
-        public IActionResult Delete(int? id)
+        public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
                 return BadRequest();
-            Department dept = dbContext.Departments.SingleOrDefault(d => d.DeptId == id);
+            Department dept = departmentRepo.GetById<int>(id.Value);
             if (dept == null)
                 return NotFound();
-            dbContext.Departments.Remove(dept);
-            dbContext.SaveChanges();
+            departmentRepo.Delete(dept);
+            departmentRepo.SaveChanges();
             var deptDTO = mapper.Map<ReadDepartmentDTO>(dept);
             return Ok(deptDTO);
         }
