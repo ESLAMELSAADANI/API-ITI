@@ -11,7 +11,10 @@ namespace Day01.DTOs.DepartmentDTOs
 
 		public string Location { get; set; }
 
-		public int? StudentNo { get; set; }
+        public int? MgrId { get; set; }
+        public string? MgrName { get; set; }
+
+        public int? StudentNo { get; set; }
 
 		public IEnumerable<string> StudentNames { get; set; } = new List<String>();
 	}

@@ -7,6 +7,6 @@
         void Add(T entity);
         void Edit(T entity);
         void Delete(T entity);
-        int SaveChanges();
+        //int SaveChanges();
     }
 }

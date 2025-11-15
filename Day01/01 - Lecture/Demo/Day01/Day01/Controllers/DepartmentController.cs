@@ -2,6 +2,7 @@
 using Day01.DTOs.DepartmentDTOs;
 using Day01.Models;
 using Day01.Repository;
+using Day01.UnitOfWorks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
@@ -12,19 +13,21 @@ namespace Day01.Controllers
     [ApiController]
     public class DepartmentController : ControllerBase
     {
-        IEntityRepo<Department> departmentRepo;
+        //IEntityRepo<Department> departmentRepo;
+        UnitOfWork unit;
         IMapper mapper;
 
-        public DepartmentController(IEntityRepo<Department> _departmentRepo, IMapper _mapper)
+        public DepartmentController(/*IEntityRepo<Department> _departmentRepo*/UnitOfWork _unit, IMapper _mapper)
         {
-            departmentRepo = _departmentRepo;
+            //departmentRepo = _departmentRepo;
+            unit = _unit;
             mapper = _mapper;
         }
 
         [HttpGet]
         public IActionResult GetAll()
         {
-            var depts = departmentRepo.GetAll();
+            var depts = unit.departmentRepo.GetAll();
             var deptsDTO = mapper.Map<List<ReadDepartmentDTO>>(depts);
             return Ok(deptsDTO);
         }
@@ -34,7 +37,7 @@ namespace Day01.Controllers
         {
             if (id == null)
                 return BadRequest();
-            var dept = departmentRepo.GetById<int>(id.Value);
+            var dept = unit.departmentRepo.GetById<int>(id.Value);
             if (dept == null)
                 return NotFound();
             ReadDepartmentDTO dDTO = mapper.Map<ReadDepartmentDTO>(dept);
@@ -51,8 +54,9 @@ namespace Day01.Controllers
             if (ModelState.IsValid)
             {
                 Department dept = mapper.Map<Department>(departmentDTO);
-                departmentRepo.Add(dept);
-                departmentRepo.SaveChanges();
+                unit.departmentRepo.Add(dept);
+                //unit.departmentRepo.SaveChanges();
+                unit.SaveChanges();
                 return RedirectToAction("GetById", new { id = dept.DeptId });
             }
             return BadRequest();
@@ -63,30 +67,32 @@ namespace Day01.Controllers
         {
             if (id == null || departmentDTO == null || id != departmentDTO.Id)
                 return BadRequest();
-            Department department = departmentRepo.GetById<int>(id.Value);
+            Department department = unit.departmentRepo.GetById<int>(id.Value);
             if (department == null)
                 return NotFound();
             if (ModelState.IsValid)
             {
                 Department dept = mapper.Map<Department>(departmentDTO);
-                departmentRepo.Edit(dept);
-                departmentRepo.SaveChanges();
+                unit.departmentRepo.Edit(dept);
+                //unit.departmentRepo.SaveChanges();
+                unit.SaveChanges();
                 return NoContent();
             }
             return BadRequest();
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int? id)
+        public IActionResult Delete(int? id)
         {
             if (id == null)
                 return BadRequest();
-            Department dept = departmentRepo.GetById<int>(id.Value);
+            Department dept = unit.departmentRepo.GetById<int>(id.Value);
             if (dept == null)
                 return NotFound();
-            departmentRepo.Delete(dept);
-            departmentRepo.SaveChanges();
             var deptDTO = mapper.Map<ReadDepartmentDTO>(dept);
+            unit.departmentRepo.Delete(dept);
+            //unit.departmentRepo.SaveChanges();
+            unit.SaveChanges();
             return Ok(deptDTO);
         }
 

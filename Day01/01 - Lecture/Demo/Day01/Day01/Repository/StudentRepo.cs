@@ -4,11 +4,11 @@ using System.Runtime.CompilerServices;
 
 namespace Day01.Repository
 {
-    public interface IStudentRepoExtra
-    {
-        public IEnumerable<Student> GetByAddress(string address);
-    }
-    public class StudentRepo : EntityRepo<Student>, IStudentRepoExtra
+    //public interface IStudentRepoExtra
+    //{
+    //    public IEnumerable<Student> GetByAddress(string address);
+    //}
+    public class StudentRepo : EntityRepo<Student>
     {
 
         public StudentRepo(ITIDbContext _dbContext) : base(_dbContext)

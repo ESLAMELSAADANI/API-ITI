@@ -38,9 +38,9 @@ namespace Day01.Repository
             return dbContext.Set<T>().Find(id);
         }
 
-        public int SaveChanges()
-        {
-            return dbContext.SaveChanges();
-        }
+        //public int SaveChanges()
+        //{
+        //    return dbContext.SaveChanges();
+        //}
     }
 }

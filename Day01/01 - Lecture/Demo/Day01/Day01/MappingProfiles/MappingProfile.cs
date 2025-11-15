@@ -16,9 +16,9 @@ namespace Day01.MappingProfiles
                 dest.Name = $"{src.StFname} {src.StLname}".Trim();
                 dest.Address = src.StAddress ?? " ";
                 dest.Age = src.StAge ?? 0;
-                dest.DeptId = src.DeptId??0;
+                dest.DeptId = src.DeptId ?? 0;
                 dest.DeptName = src.Dept?.DeptName ?? "No Dept!";
-                dest.SuperVisorId = src.StSuper??0;
+                dest.SuperVisorId = src.StSuper ?? 0;
                 dest.SupervisorName = $"{src.StSuperNavigation?.StFname ?? " "} {src.StSuperNavigation?.StLname ?? " "}".Trim();
             }).ReverseMap();
 
@@ -36,6 +36,8 @@ namespace Day01.MappingProfiles
                 dest.Id = src.DeptId;
                 dest.Name = src.DeptName ?? "";
                 dest.Location = src.DeptLocation ?? "";
+                dest.MgrId = src.DeptManager ?? 0;
+                dest.MgrName = src.DeptManagerNavigation?.InsName ?? "";
                 dest.StudentNo = src.Students?.Count();
                 dest.StudentNames = src.Students?.Select((s, i) => $"{i + 1} - {s.StFname} {s.StLname}".Trim()).ToList() ?? new List<string>();
             }).ReverseMap();

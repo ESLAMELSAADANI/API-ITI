@@ -2,6 +2,7 @@ using Day01.DTOs.StudentDTOs;
 using Day01.MappingProfiles;
 using Day01.Models;
 using Day01.Repository;
+using Day01.UnitOfWorks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
@@ -42,13 +43,15 @@ namespace Day01
 
             //For Test
             //builder.Services.AddScoped<IEntityRepo<Student>, StudentRepoTest>();
-            
-            builder.Services.AddScoped<IEntityRepo<Student>, StudentRepo>();
-            builder.Services.AddScoped<IEntityRepo<Department>, DepartmentRepo>();
+
+            builder.Services.AddScoped<UnitOfWork>();
+
+            //builder.Services.AddScoped<IEntityRepo<Student>, StudentRepo>();
+            //builder.Services.AddScoped<IEntityRepo<Department>, DepartmentRepo>();
 
             //builder.Services.AddScoped<EntityRepo<Student>, StudentRepo>();
             //builder.Services.AddScoped<EntityRepo<Department>, DepartmentRepo>();
-            builder.Services.AddScoped<IStudentRepoExtra, StudentRepo>();
+            //builder.Services.AddScoped<IStudentRepoExtra, StudentRepo>();
 
             var app = builder.Build();
 

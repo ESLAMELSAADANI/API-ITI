@@ -2,6 +2,7 @@
 using Day01.DTOs.StudentDTOs;
 using Day01.Models;
 using Day01.Repository;
+using Day01.UnitOfWorks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -14,24 +15,29 @@ namespace Day01.Controllers
     public class StudentController : ControllerBase
     {
         IMapper mapper;
-        IEntityRepo<Student> studentRepo;
-        IEntityRepo<Department> departmentRepo;
-        //EntityRepo<Student> studentRepo;
+        //IEntityRepo<Student> studentRepo;
+        //IEntityRepo<Department> departmentRepo;
+        //StudentRepo studentRepo;
         //EntityRepo<Department> departmentRepo;
-        IStudentRepoExtra studentRepoExtra;
 
-        public StudentController(IMapper _mapper, /*EntityRepo<Student> _studentRepo*/ /*,*/  IStudentRepoExtra _studentRepoExtra, IEntityRepo<Department> _departmentRepo, IEntityRepo<Student> _studentRepo)
+        UnitOfWork unit;
+
+        public StudentController(IMapper _mapper, /*StudentRepo _studentRepo*/ /*,*/  /*IStudentRepoExtra _studentRepoExtra*//*,*/ /*IEntityRepo<Department> _departmentRepo*/ /*,*/ /* IEntityRepo<Student> _studentRepo*/UnitOfWork _unit)
         {
             mapper = _mapper;
-            studentRepo = _studentRepo;
-            studentRepoExtra = _studentRepoExtra;
-            departmentRepo = _departmentRepo;
+            //studentRepo = _studentRepo;
+            //studentRepoExtra = _studentRepoExtra;
+            //departmentRepo = _departmentRepo;
+            unit = _unit;
         }
 
         [HttpGet]
+        [EndpointSummary("Select All Students With Pagination And Search!")]
+        [EndpointDescription("- To Return All Students Without Pagination Make Value Of PageSize Zero Or Negative Value!\n- Could Search With Name And Location")]
+        [ProducesResponseType(200, Type = typeof(ReadStudentDTO))]
         public IActionResult GetAll(string? search, int pageNumber = 1, int pageSize = 5)
         {
-            var query = studentRepo.GetAll();
+            var query = unit.studentRepo.GetAll();
 
             // 🔍 Search
             if (!string.IsNullOrWhiteSpace(search))
@@ -101,11 +107,15 @@ namespace Day01.Controllers
         //}
 
         [HttpGet("{id:int}")]
+        [ProducesResponseType(200, Type = typeof(ReadStudentDTO))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesErrorResponseType(typeof(void))]
         public IActionResult GetById(int? id)
         {
             if (id == null)
                 return BadRequest();
-            var std = studentRepo.GetById<int>(id.Value);
+            var std = unit.studentRepo.GetById<int>(id.Value);
             if (std == null)
                 return NotFound();
             //DTOs
@@ -130,7 +140,7 @@ namespace Day01.Controllers
         {
             if (address == null)
                 return BadRequest();
-            var stds = studentRepoExtra.GetByAddress(address);
+            var stds = unit.studentRepo.GetByAddress(address);
             if (stds == null)
                 return NotFound();
             //Auto Mapper
@@ -139,7 +149,7 @@ namespace Day01.Controllers
         }
 
         [HttpPost]
-        public  IActionResult Add(AddStudentDTO stdDTO)
+        public IActionResult Add(AddStudentDTO stdDTO)
         {
             if (stdDTO == null)
                 return BadRequest();
@@ -158,8 +168,9 @@ namespace Day01.Controllers
                 //Auto Mapper
                 Student std = mapper.Map<Student>(stdDTO);
 
-                studentRepo.Add(std);
-                studentRepo.SaveChanges();
+                unit.studentRepo.Add(std);
+                //unit.studentRepo.SaveChanges();
+                unit.SaveChanges();
                 //var rStdDTO = new ReadStudentDTO()
                 //{
                 //    Id = stdDTO.Id,
@@ -180,21 +191,22 @@ namespace Day01.Controllers
 
         [HttpPut("{id}")]
         public IActionResult Edit(int id, AddStudentDTO std)
-        { 
+        {
             if (std == null)
                 return BadRequest();
             if (id != std.Id)
                 return BadRequest();
             //var student = dbContext.Students.AsNoTracking().SingleOrDefault(s => s.StId == id);
-            var student = studentRepo.GetById<int>(id);
+            var student = unit.studentRepo.GetById<int>(id);
             if (student == null)
                 return NotFound();
             Student model = mapper.Map<Student>(std);
-            model.Dept = departmentRepo.GetById<int>(std.DeptId.Value);
+            model.Dept = unit.departmentRepo.GetById<int>(std.DeptId.Value);
             if (ModelState.IsValid)
             {
-                studentRepo.Edit(model);
-                studentRepo.SaveChanges();
+                unit.studentRepo.Edit(model);
+                //unit.studentRepo.SaveChanges();
+                unit.SaveChanges();
                 return NoContent();
             }
             return BadRequest();
@@ -205,14 +217,15 @@ namespace Day01.Controllers
         {
             if (id == null)
                 return BadRequest();
-            var std = studentRepo.GetById<int>(id.Value);
+            var std = unit.studentRepo.GetById<int>(id.Value);
             if (std == null)
                 return NotFound();
             if (ModelState.IsValid)
             {
                 var stdDTO = mapper.Map<ReadStudentDTO>(std);
-                studentRepo.Delete(std);
-                studentRepo.SaveChanges();
+                unit.studentRepo.Delete(std);
+                //unit.studentRepo.SaveChanges();
+                unit.SaveChanges();
                 return Ok(stdDTO);
             }
             return BadRequest();
